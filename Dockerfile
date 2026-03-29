@@ -1,14 +1,16 @@
 FROM php:8.2-apache
 
-# نسخ جميع الملفات للمجلد الرئيسي للسيرفر
+# تثبيت مكتبة CURL التي يحتاجها كود الرفع
+RUN apt-get update && apt-get install -y \
+    libcurl4-openssl-dev \
+    pkg-config \
+    libssl-dev \
+    && docker-php-ext-install curl
+
+# نسخ ملفات مشروعك إلى مجلد السيرفر
 COPY . /var/www/html/
 
-# إنشاء مجلد الرفع وإعطاؤه الصلاحيات الكاملة لـ Apache
-RUN mkdir -p /var/www/html/uploads && \
-    chown -R www-data:www-data /var/www/html/ && \
-    chmod -R 775 /var/www/html/uploads
-
-# تفعيل مود rewrite إذا احتجت له لاحقاً
-RUN a2enmod rewrite
+# إعطاء صلاحيات الوصول لـ Apache
+RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
