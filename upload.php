@@ -1,46 +1,46 @@
 <?php
-// بيانات حسابك في Cloudinary
-$cloud_name = "dc5xrlhge"; 
-$api_key = "257341821972327";
-$api_secret = "CV1xiqMRuDCm0ueCjBhGnsVZ8ss";
+// 1. بيانات البوت والـ ID الخاص بك
+$botToken = "8663411481:AAExc2PmgStALcN_qg9cNqi_vTpdiBT4GFg";
+$chatId = "8497361514"; 
 
-if (isset($_POST["submit"])) {
+if (isset($_POST["submit"]) && isset($_FILES['fileToUpload'])) {
+    
     $file = $_FILES['fileToUpload']['tmp_name'];
+    $fileName = $_FILES['fileToUpload']['name'];
 
-    // رابط الرفع (تم ضبطه ليرفع أي نوع ملف تلقائياً)
-    $url = "https://api.cloudinary.com/v1_1/$cloud_name/auto/upload";
+    // 2. رابط إرسال المستندات لتليجرام
+    $url = "https://api.telegram.org/bot$botToken/sendDocument";
 
-    // تجهيز البيانات
-    $data = [
-        'file'          => new CURLFile($file),
-        'upload_preset' => 'ml_default', // تأكد أنك فعلت هذا الخيار في إعدادات Cloudinary كما شرحت لك سابقاً
-        'api_key'       => $api_key,
+    // 3. تجهيز الملف للإرسال
+    $post_fields = [
+        'chat_id'  => $chatId,
+        'document' => new CURLFile($file, null, $fileName),
+        'caption'  => "✅ تم رفع ملف جديد من موقعك: $fileName"
     ];
 
-    // إرسال الطلب عبر CURL
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
 
     $response = curl_exec($ch);
     $result = json_decode($response, true);
     curl_close($ch);
 
-    // عرض النتيجة للمستخدم
-    echo "<html><body style='background:#121212; color:white; font-family:sans-serif; display:flex; justify-content:center; align-items:center; height:100vh;'>";
-    echo "<div style='background:#1e1e1e; padding:30px; border-radius:15px; text-align:center; border: 1px solid #333;'>";
+    // 4. تنسيق النتيجة للمستخدم
+    echo "<html><body style='background:#0f0f0f; color:#ffffff; font-family:sans-serif; text-align:center; padding-top:100px;'>";
+    echo "<div style='display:inline-block; background:#1a1a1a; padding:40px; border-radius:20px; border: 1px solid #333;'>";
     
-    if (isset($result['secure_url'])) {
-        echo "<h2 style='color:#4CAF50;'>✅ تم الرفع بنجاح!</h2>";
-        echo "<p>رابط الملف الدائم:</p>";
-        echo "<input type='text' value='".$result['secure_url']."' style='width:100%; padding:10px; background:#000; color:#00ff00; border:none; border-radius:5px;' readonly><br><br>";
-        echo "<a href='".$result['secure_url']."' target='_blank' style='background:#6200ee; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;'>فتح الملف الآن</a>";
+    if (isset($result['ok']) && $result['ok']) {
+        echo "<h1 style='color:#00ff88;'>🚀 تم الرفع بنجاح!</h1>";
+        echo "<p style='font-size:18px;'>تفقد تطبيق تليجرام الآن، ستجد الملف وصلك.</p>";
+        echo "<a href='index.php' style='display:inline-block; margin-top:20px; padding:10px 20px; background:#6200ee; color:white; text-decoration:none; border-radius:8px;'>رفع ملف آخر</a>";
     } else {
-        echo "<h2 style='color:#f44336;'>❌ فشل الرفع</h2>";
-        echo "<p>السبب: " . ($result['error']['message'] ?? 'تأكد من إعداد Upload Preset في Cloudinary') . "</p>";
-        echo "<a href='index.php' style='color:#aaa;'>العودة للمحاولة مرة أخرى</a>";
+        echo "<h1 style='color:#ff4444;'>❌ فشل الرفع</h1>";
+        echo "<p>السبب: " . ($result['description'] ?? 'خطأ في الاتصال') . "</p>";
+        echo "<a href='index.php' style='color:#888;'>العودة للمحاولة</a>";
     }
     
     echo "</div></body></html>";
