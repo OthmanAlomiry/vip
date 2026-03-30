@@ -194,7 +194,6 @@
         }
         .qr-btn { color: var(--primary); }
 
-        /* --- شريط التواصل الاجتماعي المحدث --- */
         .social-footer {
             margin-top: 50px;
             display: flex;
@@ -260,8 +259,8 @@
         <form id="upload-form">
             <div class="file-input-wrapper" onclick="document.getElementById('file-input').click()">
                 <i class="fas fa-cloud-upload-alt" style="font-size: 50px; color: var(--primary); filter: drop-shadow(0 0 10px var(--primary));"></i>
-                <div id="file-name">اسحب الملف هنا أو اضغط للاختيار</div>
-                <input type="file" id="file-input" name="fileToUpload" style="display: none;" onchange="showName()">
+                <div id="file-name">اسحب الملفات هنا أو اضغط للاختيار</div>
+                <input type="file" id="file-input" name="fileToUpload" style="display: none;" onchange="showName()" multiple>
             </div>
             
             <button type="button" id="upload-btn" onclick="startUpload()">ابدأ الرفع السحابي</button>
@@ -322,53 +321,74 @@
         function showName() {
             const input = document.getElementById('file-input');
             if (input.files.length > 0) {
-                const size = formatBytes(input.files[0].size);
-                document.getElementById('file-name').innerHTML = `<strong>تم اختيار:</strong><br>${input.files[0].name}<br><span style="font-size:11px; color:var(--secondary)">الحجم: ${size}</span>`;
+                if (input.files.length === 1) {
+                    const size = formatBytes(input.files[0].size);
+                    document.getElementById('file-name').innerHTML = `<strong>تم اختيار:</strong><br>${input.files[0].name}<br><span style="font-size:11px; color:var(--secondary)">الحجم: ${size}</span>`;
+                } else {
+                    document.getElementById('file-name').innerHTML = `<strong>تم اختيار:</strong><br>${input.files.length} ملفات`;
+                }
             }
         }
 
-        function startUpload() {
+        // دالة الرفع المعدلة للتعامل مع ملفات متعددة
+        async function startUpload() {
             const fileInput = document.getElementById('file-input');
-            if (fileInput.files.length === 0) { alert("من فضلك اختر ملفاً أولاً!"); return; }
+            const files = fileInput.files;
+            if (files.length === 0) { alert("من فضلك اختر ملفاً أولاً!"); return; }
 
-            const fileSize = formatBytes(fileInput.files[0].size);
-            const fileName = fileInput.files[0].name;
-            const formData = new FormData();
-            formData.append("fileToUpload", fileInput.files[0]);
-
-            const xhr = new XMLHttpRequest();
             const btn = document.getElementById('upload-btn');
             const progCont = document.getElementById('prog-cont');
             const progBar = document.getElementById('progress-bar');
             const percentTxt = document.getElementById('percent');
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
             progCont.style.display = "block";
 
-            xhr.upload.addEventListener("progress", (e) => {
-                if (e.lengthComputable) {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    progBar.style.width = percent + "%";
-                    percentTxt.innerText = percent + "% مكتمل";
-                }
-            });
+            // رفع الملفات واحداً تلو الآخر
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileSize = formatBytes(file.size);
+                const fileName = file.name;
+                
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> جاري رفع (${i + 1}/${files.length})`;
+                
+                await new Promise((resolve, reject) => {
+                    const formData = new FormData();
+                    formData.append("fileToUpload", file);
 
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    const response = xhr.responseText.trim();
-                    if (response.startsWith("https")) {
-                        saveToHistory(fileName, response, fileSize);
-                        alert("✅ تم الرفع بنجاح!");
-                        location.reload(); 
-                    } else {
-                        alert("❌ فشل الرفع: " + response);
-                        resetBtn(btn, progCont);
-                    }
-                }
-            };
-            xhr.open("POST", "upload.php", true);
-            xhr.send(formData);
+                    const xhr = new XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", (e) => {
+                        if (e.lengthComputable) {
+                            const percent = Math.round((e.loaded / e.total) * 100);
+                            progBar.style.width = percent + "%";
+                            percentTxt.innerText = `ملف ${i + 1}: ${percent}% مكتمل`;
+                        }
+                    });
+
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                const response = xhr.responseText.trim();
+                                if (response.startsWith("https")) {
+                                    saveToHistory(fileName, response, fileSize);
+                                    resolve();
+                                } else {
+                                    alert(`❌ فشل رفع ${fileName}: ` + response);
+                                    resolve(); // استمرار لرفع الباقي
+                                }
+                            } else {
+                                alert(`❌ خطأ في الاتصال أثناء رفع ${fileName}`);
+                                resolve();
+                            }
+                        }
+                    };
+                    xhr.open("POST", "upload.php", true);
+                    xhr.send(formData);
+                });
+            }
+
+            alert("✅ اكتملت عملية الرفع!");
+            location.reload(); 
         }
 
         function resetBtn(btn, prog) {
