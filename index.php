@@ -31,7 +31,6 @@
             position: relative;
         }
 
-        /* --- الخلفية المتحركة --- */
         .bg-animate {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -134,6 +133,21 @@
         }
         #percent { font-size: 0.85rem; color: var(--secondary); margin-top: 8px; font-weight: bold; }
 
+        /* تنسيق عداد الرفع الحقيقي */
+        .upload-counter {
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--secondary);
+            background: rgba(3, 218, 198, 0.05);
+            padding: 8px 15px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(3, 218, 198, 0.2);
+            font-weight: bold;
+        }
+
         .history-container {
             width: 100%;
             max-width: 500px;
@@ -194,7 +208,6 @@
         }
         .qr-btn { color: var(--primary); }
 
-        /* --- شريط التواصل الاجتماعي المحدث --- */
         .social-footer {
             margin-top: 50px;
             display: flex;
@@ -271,6 +284,11 @@
             </div>
             <div id="percent"></div>
         </form>
+
+        <div class="upload-counter">
+            <i class="fas fa-file-upload"></i>
+            <span>إجمالي عمليات الرفع: <span id="total-uploads">...</span></span>
+        </div>
     </div>
 
     <div class="history-container" id="historyBox" style="display: none;">
@@ -282,10 +300,10 @@
     </div>
 
     <div class="social-footer">
-        <a href="https://snapchat.com/t/HFoklmi4" target="_blank" class="snapchat" title="سناب شات"><i class="fab fa-snapchat"></i></a>
-        <a href="https://t.me/d_s_pro" target="_blank" class="telegram" title="تليجرام"><i class="fab fa-telegram"></i></a>
-        <a href="https://wa.me/966505571164" target="_blank" class="whatsapp" title="واتساب"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://x.com/d_service_pro?s=21" target="_blank" class="twitter" title="تويتر (X)"><i class="fab fa-twitter"></i></a>
+        <a href="https://snapchat.com/t/HFoklmi4" target="_blank" class="snapchat"><i class="fab fa-snapchat"></i></a>
+        <a href="https://t.me/d_s_pro" target="_blank" class="telegram"><i class="fab fa-telegram"></i></a>
+        <a href="https://wa.me/966505571164" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://x.com/d_service_pro?s=21" target="_blank" class="twitter"><i class="fab fa-twitter"></i></a>
     </div>
 
     <div id="qr-modal" onclick="this.style.display='none'">
@@ -299,6 +317,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
+        // مفتاح العداد الخاص بك (فريد لموقعك)
+        const COUNT_API_URL = "https://api.countapi.xyz/hit/d-service.pro/uploads";
+
+        async function updateUploadCounter(increase = false) {
+            try {
+                // إذا كان increase صحيحاً سنقوم بزيادة العداد، وإلا سنجلب القيمة فقط
+                const endpoint = increase ? COUNT_API_URL : "https://api.countapi.xyz/get/d-service.pro/uploads";
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                document.getElementById('total-uploads').innerText = data.value || 0;
+            } catch (e) {
+                document.getElementById('total-uploads').innerText = "0";
+            }
+        }
+
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -312,7 +345,6 @@
             const images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
             const videos = ['mp4', 'mov', 'avi', 'mkv'];
             const audio = ['mp3', 'wav', 'ogg', 'm4a'];
-            
             if (images.includes(ext)) return 'IMAGE';
             if (videos.includes(ext)) return '<i class="fas fa-video" style="color:#ff4444"></i>';
             if (audio.includes(ext)) return '<i class="fas fa-headphones" style="color:#03dac6"></i>';
@@ -354,10 +386,12 @@
                 }
             });
 
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = async function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     const response = xhr.responseText.trim();
                     if (response.startsWith("https")) {
+                        // هنا السحر: عند نجاح الرفع نقوم بزيادة العداد العالمي
+                        await updateUploadCounter(true);
                         saveToHistory(fileName, response, fileSize);
                         alert("✅ تم الرفع بنجاح!");
                         location.reload(); 
@@ -400,7 +434,6 @@
                     const previewHtml = iconOrImg === 'IMAGE' 
                         ? `<div class="preview-box"><img src="${item.url}" alt="preview"></div>`
                         : `<div class="preview-box">${iconOrImg}</div>`;
-
                     return `
                         <div class="history-item">
                             <div style="display:flex; align-items:center; max-width:60%;">
@@ -432,7 +465,12 @@
                 location.reload();
             }
         }
-        window.onload = displayHistory;
+
+        // جلب قيمة العداد عند فتح الصفحة
+        window.onload = function() {
+            displayHistory();
+            updateUploadCounter(false);
+        };
     </script>
 </body>
 </html>
