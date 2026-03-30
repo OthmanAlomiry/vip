@@ -31,13 +31,13 @@
             position: relative;
         }
 
+        /* الخلفية المتحركة */
         .bg-animate {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
             background: radial-gradient(circle at center, #161b22 0%, #0a0c14 100%);
         }
-
         .shape {
             position: absolute;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
@@ -46,30 +46,22 @@
             opacity: 0.15;
             animation: float 20s infinite alternate;
         }
-
         @keyframes float {
             0% { transform: translate(0, 0) scale(1); }
             100% { transform: translate(100px, 100px) scale(1.2); }
         }
 
-        .features-header {
-            text-align: center;
-            margin-bottom: 30px;
-            z-index: 1;
-        }
+        .features-header { text-align: center; margin-bottom: 30px; z-index: 1; }
         .features-header h1 { 
             font-size: clamp(1.5rem, 5vw, 2.2rem); 
-            margin-bottom: 10px;
             background: linear-gradient(to right, #fff, var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .features-header p { color: var(--secondary); font-size: 0.9rem; letter-spacing: 1px; }
 
         .card { 
             background: var(--card-bg); 
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             padding: clamp(20px, 5vw, 40px);
             border-radius: 28px; 
             box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
@@ -86,136 +78,58 @@
             border-radius: 20px;
             margin-bottom: 25px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: 0.4s;
             background: rgba(255,255,255,0.03);
         }
-        .file-input-wrapper:hover { 
-            border-color: var(--primary); 
-            background: rgba(187, 134, 252, 0.08);
-            transform: scale(1.02);
-        }
-
-        #file-name { font-size: 0.9rem; color: #8b949e; margin-top: 15px; word-break: break-all; }
+        .file-input-wrapper:hover { border-color: var(--primary); background: rgba(187, 134, 252, 0.08); }
 
         button { 
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: #000; 
-            border: none; 
-            padding: 16px; 
-            font-weight: 800; 
-            border-radius: 14px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            width: 100%;
-            font-size: 1.1rem;
-            text-transform: uppercase;
+            color: #000; border: none; padding: 16px; font-weight: 800; border-radius: 14px; 
+            cursor: pointer; transition: 0.3s; width: 100%; font-size: 1.1rem;
         }
-        button:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(3, 218, 198, 0.3); }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        button:disabled { opacity: 0.6; }
 
         .progress-container {
-            display: none;
-            margin-top: 25px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            height: 10px;
-            overflow: hidden;
+            display: none; margin-top: 25px; background: rgba(255,255,255,0.1);
+            border-radius: 20px; height: 10px; overflow: hidden;
         }
         #progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            box-shadow: 0 0 15px var(--secondary);
-            transition: width 0.3s ease;
+            width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
         }
-        #percent { font-size: 0.85rem; color: var(--secondary); margin-top: 8px; font-weight: bold; }
 
+        /* العداد السحابي */
         .upload-counter {
-            margin-top: 20px;
-            font-size: 13px;
-            color: var(--secondary);
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
+            margin-top: 25px; font-size: 13px; color: var(--secondary);
+            background: rgba(255, 255, 255, 0.05); padding: 10px 20px;
+            border-radius: 50px; display: inline-flex; align-items: center; gap: 10px;
             border: 1px solid var(--glass-border);
-            font-weight: bold;
         }
 
         .history-container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 25px;
-            margin-top: 40px;
-            border: 1px solid var(--glass-border);
-            z-index: 1;
+            width: 100%; max-width: 500px; background: var(--card-bg);
+            backdrop-filter: blur(10px); border-radius: 24px; padding: 25px;
+            margin-top: 40px; border: 1px solid var(--glass-border); z-index: 1;
         }
-        .history-title { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 20px; }
         .history-item {
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid transparent;
-            transition: 0.3s;
+            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px;
+            margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
         }
-
-        .preview-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            margin-left: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.1);
-            overflow: hidden;
-            flex-shrink: 0;
-        }
+        .preview-box { width: 40px; height: 40px; border-radius: 8px; margin-left: 10px; overflow: hidden; background: #333; display: flex; align-items: center; justify-content: center; }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        .file-size-badge {
-            background: rgba(3, 218, 198, 0.1);
-            color: var(--secondary);
-            padding: 2px 6px;
-            border-radius: 6px;
-            font-size: 9px;
-            margin-top: 4px;
-            display: inline-block;
-        }
-
-        .actions { display: flex; gap: 10px; align-items: center; }
-        .actions a, .copy-btn, .qr-btn { color: var(--secondary); text-decoration: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-
         .social-footer {
-            margin-top: 50px;
-            display: flex;
-            gap: 20px;
-            z-index: 10;
-            background: var(--card-bg);
-            padding: 15px 30px;
-            border-radius: 50px;
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px);
+            margin-top: 50px; display: flex; gap: 20px; z-index: 10;
+            background: var(--card-bg); padding: 15px 30px; border-radius: 50px;
+            border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
         }
-        .social-footer a { color: white; font-size: 1.5rem; transition: 0.3s ease; }
+        .social-footer a { font-size: 1.5rem; transition: 0.3s; }
+        .social-footer a:hover { transform: translateY(-5px); }
 
         #qr-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center;
         }
         .qr-content { background: white; padding: 20px; border-radius: 20px; text-align: center; color: black; }
     </style>
@@ -224,7 +138,7 @@
 
     <div class="bg-animate">
         <div class="shape" style="width: 300px; height: 300px; top: -100px; left: -100px;"></div>
-        <div class="shape" style="width: 250px; height: 250px; bottom: 10%; right: -50px; animation-delay: -5s;"></div>
+        <div class="shape" style="width: 250px; height: 250px; bottom: 10%; right: -50px;"></div>
     </div>
 
     <div class="features-header">
@@ -239,27 +153,24 @@
                 <div id="file-name">اسحب الملف هنا أو اضغط للاختيار</div>
                 <input type="file" id="file-input" name="fileToUpload" style="display: none;" onchange="showName()">
             </div>
-            
             <button type="button" id="upload-btn" onclick="startUpload()">ابدأ الرفع السحابي</button>
-            
             <div class="progress-container" id="prog-cont">
                 <div id="progress-bar"></div>
             </div>
-            <div id="percent"></div>
+            <div id="percent" style="font-size: 12px; margin-top: 5px; color: var(--secondary);"></div>
         </form>
 
         <div class="upload-counter">
             <i class="fas fa-rocket"></i>
-            <span>إجمالي الرفوعات: <span id="total-uploads">
-                <?php echo file_exists('counter.txt') ? file_get_contents('counter.txt') : '0'; ?>
-            </span></span>
+            <span>إجمالي الرفوعات: </span>
+            <img src="https://api.countapi.xyz/visual/hit/d-service-pro-final/uploads?color=03dac6&font_size=14" alt="counter">
         </div>
     </div>
 
     <div class="history-container" id="historyBox" style="display: none;">
-        <div class="history-title">
-            <span><i class="fas fa-history"></i> ملفاتك المرفوعة</span>
-            <button class="clear-btn" onclick="clearHistory()" style="background:none; border:1px solid #ff4444; color:#ff4444; border-radius:8px; padding:4px 8px; cursor:pointer; font-size:12px;">مسح السجل</button>
+        <div class="history-title" style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+            <span><i class="fas fa-history"></i> ملفاتك الأخيرة</span>
+            <button onclick="clearHistory()" style="background:none; border:1px solid #f85149; color:#f85149; border-radius:8px; cursor:pointer; padding:2px 8px;">مسح</button>
         </div>
         <div id="historyList"></div>
     </div>
@@ -279,41 +190,24 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <script>
-        function formatBytes(bytes, decimals = 2) {
+        function formatBytes(bytes) {
             if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
-        }
-
-        function getFileIcon(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            const images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
-            const videos = ['mp4', 'mov', 'avi', 'mkv'];
-            const audio = ['mp3', 'wav', 'ogg', 'm4a'];
-            if (images.includes(ext)) return 'IMAGE';
-            if (videos.includes(ext)) return '<i class="fas fa-video" style="color:#ff4444"></i>';
-            if (audio.includes(ext)) return '<i class="fas fa-headphones" style="color:#03dac6"></i>';
-            return '<i class="far fa-file-alt"></i>';
+            const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'], i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
         function showName() {
             const input = document.getElementById('file-input');
             if (input.files.length > 0) {
-                const size = formatBytes(input.files[0].size);
-                document.getElementById('file-name').innerHTML = `<strong>${input.files[0].name}</strong><br>${size}`;
+                document.getElementById('file-name').innerHTML = `<strong>${input.files[0].name}</strong><br>${formatBytes(input.files[0].size)}`;
             }
         }
 
         function startUpload() {
             const fileInput = document.getElementById('file-input');
-            if (fileInput.files.length === 0) { alert("اختر ملفاً!"); return; }
+            if (fileInput.files.length === 0) return alert("اختر ملفاً!");
 
-            const fileSize = formatBytes(fileInput.files[0].size);
-            const fileName = fileInput.files[0].name;
             const formData = new FormData();
             formData.append("fileToUpload", fileInput.files[0]);
 
@@ -321,31 +215,26 @@
             const btn = document.getElementById('upload-btn');
             const progCont = document.getElementById('prog-cont');
             const progBar = document.getElementById('progress-bar');
-            const percentTxt = document.getElementById('percent');
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
+            btn.disabled = true; btn.innerHTML = 'جاري الرفع...';
             progCont.style.display = "block";
 
             xhr.upload.addEventListener("progress", (e) => {
-                if (e.lengthComputable) {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    progBar.style.width = percent + "%";
-                    percentTxt.innerText = percent + "%";
-                }
+                const percent = Math.round((e.loaded / e.total) * 100);
+                progBar.style.width = percent + "%";
+                document.getElementById('percent').innerText = percent + "%";
             });
 
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     const response = xhr.responseText.trim();
                     if (response.startsWith("https")) {
-                        saveToHistory(fileName, response, fileSize);
-                        alert("✅ تم الرفع بنجاح!");
-                        location.reload(); // التحديث هنا ضروري ليظهر رقم العداد الجديد من السيرفر
+                        saveToHistory(fileInput.files[0].name, response, formatBytes(fileInput.files[0].size));
+                        alert("✅ تم بنجاح!");
+                        location.reload(); 
                     } else {
                         alert("❌ فشل: " + response);
-                        btn.disabled = false;
-                        btn.innerText = "ابدأ الرفع السحابي";
+                        btn.disabled = false; btn.innerText = "ابدأ الرفع";
                     }
                 }
             };
@@ -361,8 +250,7 @@
 
         function showQR(url) {
             const qrDiv = document.getElementById('qrcode');
-            qrDiv.innerHTML = "";
-            new QRCode(qrDiv, { text: url, width: 150, height: 150 });
+            qrDiv.innerHTML = ""; new QRCode(qrDiv, { text: url, width: 150, height: 150 });
             document.getElementById('qr-modal').style.display = 'flex';
         }
 
@@ -370,40 +258,25 @@
             const history = JSON.parse(localStorage.getItem('uploadHistory') || '[]');
             if (history.length > 0) {
                 document.getElementById('historyBox').style.display = 'block';
-                document.getElementById('historyList').innerHTML = history.reverse().map(item => {
-                    const iconOrImg = getFileIcon(item.name);
-                    const previewHtml = iconOrImg === 'IMAGE' 
-                        ? `<div class="preview-box"><img src="${item.url}"></div>`
-                        : `<div class="preview-box">${iconOrImg}</div>`;
-                    return `
-                        <div class="history-item">
-                            <div style="display:flex; align-items:center; max-width:60%;">
-                                ${previewHtml}
-                                <div style="overflow:hidden;">
-                                    <div style="font-size: 12px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${item.name}</div>
-                                    <span class="file-size-badge">${item.size} • ${item.time}</span>
-                                </div>
-                            </div>
-                            <div class="actions">
-                                <a href="${item.url}" target="_blank">فتح</a>
-                                <span class="qr-btn" onclick="showQR('${item.url}')"><i class="fas fa-qrcode"></i></span>
-                                <span class="copy-btn" onclick="copy('${item.url}')">نسخ</span>
+                document.getElementById('historyList').innerHTML = history.reverse().map(item => `
+                    <div class="history-item">
+                        <div style="display:flex; align-items:center; max-width:65%;">
+                            <div class="preview-box">${item.name.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? `<img src="${item.url}">` : '<i class="fas fa-file"></i>'}</div>
+                            <div style="overflow:hidden; font-size:12px;">
+                                <div style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${item.name}</div>
+                                <span style="color:var(--secondary); font-size:10px;">${item.size} • ${item.time}</span>
                             </div>
                         </div>
-                    `;
-                }).join('');
+                        <div style="display:flex; gap:10px;">
+                            <a href="${item.url}" target="_blank" style="color:var(--secondary)"><i class="fas fa-external-link-alt"></i></a>
+                            <span onclick="showQR('${item.url}')" style="color:var(--primary); cursor:pointer;"><i class="fas fa-qrcode"></i></span>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
 
-        function copy(url) {
-            navigator.clipboard.writeText(url);
-            alert('تم نسخ الرابط!');
-        }
-
-        function clearHistory() {
-            if(confirm('مسح السجل؟')) { localStorage.removeItem('uploadHistory'); location.reload(); }
-        }
-
+        function clearHistory() { localStorage.removeItem('uploadHistory'); location.reload(); }
         window.onload = displayHistory;
     </script>
 </body>
