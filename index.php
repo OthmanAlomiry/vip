@@ -26,7 +26,7 @@
             align-items: center; 
             min-height: 100vh; 
             margin: 0; 
-            padding: 20px;
+            padding: 20px 20px 120px 20px; 
             overflow-x: hidden;
             position: relative;
         }
@@ -159,7 +159,6 @@
         }
         .history-item:hover { border-color: var(--glass-border); background: rgba(255,255,255,0.05); }
 
-        /* تنسيق المعاينة */
         .preview-box {
             width: 40px;
             height: 40px;
@@ -195,7 +194,28 @@
         }
         .qr-btn { color: var(--primary); }
 
-        /* نافذة كود QR */
+        /* --- شريط التواصل الاجتماعي المحدث --- */
+        .social-footer {
+            margin-top: 50px;
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+            background: var(--card-bg);
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+        .social-footer a {
+            color: white;
+            font-size: 1.5rem;
+            transition: 0.3s ease;
+        }
+        .social-footer a.snapchat:hover { color: #FFFC00; transform: translateY(-5px); }
+        .social-footer a.telegram:hover { color: #0088cc; transform: translateY(-5px); }
+        .social-footer a.whatsapp:hover { color: #25D366; transform: translateY(-5px); }
+        .social-footer a.twitter:hover { color: #fff; transform: translateY(-5px); }
+
         #qr-modal {
             display: none;
             position: fixed;
@@ -217,9 +237,10 @@
         .clear-btn { background: rgba(248, 81, 73, 0.1); border: 1px solid #f85149; color: #f85149; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; }
 
         @media (max-width: 480px) {
-            body { padding: 15px; }
+            body { padding: 15px 15px 100px 15px; }
             .card { border-radius: 20px; }
             .history-container { margin-top: 25px; }
+            .social-footer { gap: 15px; padding: 10px 20px; }
         }
     </style>
 </head>
@@ -258,6 +279,13 @@
             <button class="clear-btn" onclick="clearHistory()">مسح السجل</button>
         </div>
         <div id="historyList"></div>
+    </div>
+
+    <div class="social-footer">
+        <a href="https://snapchat.com/t/HFoklmi4" target="_blank" class="snapchat" title="سناب شات"><i class="fab fa-snapchat"></i></a>
+        <a href="https://t.me/d_s_pro" target="_blank" class="telegram" title="تليجرام"><i class="fab fa-telegram"></i></a>
+        <a href="https://wa.me/966505571164" target="_blank" class="whatsapp" title="واتساب"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://x.com/d_service_pro?s=21" target="_blank" class="twitter" title="تويتر (X)"><i class="fab fa-twitter"></i></a>
     </div>
 
     <div id="qr-modal" onclick="this.style.display='none'">
