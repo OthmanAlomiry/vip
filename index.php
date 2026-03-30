@@ -3,129 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الخدمة الرقمية | رفع سريع</title>
+    <title>الخدمة الرقمية | مركز الرفع الاحترافي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary: #bb86fc;
             --secondary: #03dac6;
-            --bg: #0f111a;
-            --card: #161b22;
-            --text-muted: #8b949e;
+            --bg: #0a0c14;
+            --card-bg: rgba(22, 27, 34, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text: #e6edf3;
         }
 
+        * { box-sizing: border-box; }
+
         body { 
-            background: var(--bg); 
-            color: #c9d1d9; 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
             display: flex; 
             flex-direction: column;
             align-items: center; 
             min-height: 100vh; 
             margin: 0; 
             padding: 20px;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* عبارة التميز */
+        /* --- الخلفية المتحركة --- */
+        .bg-animate {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #161b22 0%, #0a0c14 100%);
+        }
+
+        .shape {
+            position: absolute;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            filter: blur(80px);
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: float 20s infinite alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 100px) scale(1.2); }
+        }
+
+        /* --- المحتوى الرئيسي --- */
         .features-header {
             text-align: center;
             margin-bottom: 30px;
+            z-index: 1;
         }
-        .features-header h1 { color: white; margin-bottom: 5px; font-size: 24px; }
-        .features-header p { color: var(--secondary); font-size: 14px; font-weight: bold; }
+        .features-header h1 { 
+            font-size: clamp(1.5rem, 5vw, 2.2rem); 
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .features-header p { color: var(--secondary); font-size: 0.9rem; letter-spacing: 1px; }
 
         .card { 
-            background: var(--card); 
-            padding: 30px; 
-            border-radius: 24px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            background: var(--card-bg); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: clamp(20px, 5vw, 40px);
+            border-radius: 28px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
             text-align: center; 
             width: 100%;
-            max-width: 420px; 
-            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 450px; 
+            border: 1px solid var(--glass-border);
+            z-index: 1;
         }
 
         .file-input-wrapper {
-            border: 2px dashed #30363d;
-            padding: 30px 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
+            border: 2px dashed rgba(255,255,255,0.2);
+            padding: 40px 20px;
+            border-radius: 20px;
+            margin-bottom: 25px;
             cursor: pointer;
-            transition: 0.3s;
-            background: rgba(255,255,255,0.02);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255,255,255,0.03);
         }
-        .file-input-wrapper:hover { border-color: var(--primary); background: rgba(187, 134, 252, 0.05); }
+        .file-input-wrapper:hover { 
+            border-color: var(--primary); 
+            background: rgba(187, 134, 252, 0.08);
+            transform: scale(1.02);
+        }
 
-        #file-name { font-size: 14px; color: var(--text-muted); margin-top: 10px; }
+        #file-name { font-size: 0.9rem; color: #8b949e; margin-top: 15px; word-break: break-all; }
 
         button { 
-            background: var(--primary); 
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: #000; 
             border: none; 
-            padding: 15px; 
-            font-weight: bold; 
-            border-radius: 12px; 
+            padding: 16px; 
+            font-weight: 800; 
+            border-radius: 14px; 
             cursor: pointer; 
             transition: 0.3s; 
             width: 100%;
-            font-size: 16px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
         }
-        button:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(187, 134, 252, 0.3); }
-        button:disabled { background: #444; cursor: not-allowed; }
+        button:hover:not(:disabled) { 
+            transform: translateY(-3px); 
+            box-shadow: 0 12px 24px rgba(3, 218, 198, 0.3); 
+        }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* شريط التحميل */
         .progress-container {
             display: none;
-            margin-top: 20px;
-            background: #30363d;
-            border-radius: 10px;
-            height: 12px;
+            margin-top: 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            height: 10px;
             overflow: hidden;
         }
         #progress-bar {
             width: 0%;
             height: 100%;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            transition: width 0.2s;
+            box-shadow: 0 0 15px var(--secondary);
+            transition: width 0.3s ease;
         }
-        #percent { font-size: 12px; color: var(--secondary); margin-top: 5px; font-weight: bold; }
+        #percent { font-size: 0.85rem; color: var(--secondary); margin-top: 8px; font-weight: bold; }
 
         /* السجل */
         .history-container {
             width: 100%;
             max-width: 500px;
-            background: var(--card);
-            border-radius: 20px;
-            padding: 20px;
-            margin-top: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 25px;
+            margin-top: 40px;
+            border: 1px solid var(--glass-border);
+            z-index: 1;
         }
-        .history-title { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 15px; margin-bottom: 15px; }
+        .history-title { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 20px; }
         .history-item {
-            background: #0d1117;
+            background: rgba(255,255,255,0.03);
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 15px;
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid transparent;
+            transition: 0.3s;
         }
-        .actions a, .copy-btn { color: var(--secondary); text-decoration: none; cursor: pointer; border: none; background: none; font-size: 13px; font-family: inherit; }
-        .clear-btn { background: none; border: 1px solid #f85149; color: #f85149; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+        .history-item:hover { border-color: var(--glass-border); background: rgba(255,255,255,0.05); }
+
+        .actions a, .copy-btn { 
+            color: var(--secondary); 
+            text-decoration: none; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .clear-btn { background: rgba(248, 81, 73, 0.1); border: 1px solid #f85149; color: #f85149; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; }
+
+        /* تعديلات الجوال */
+        @media (max-width: 480px) {
+            body { padding: 15px; }
+            .card { border-radius: 20px; }
+            .history-container { margin-top: 25px; }
+        }
     </style>
 </head>
 <body>
 
+    <div class="bg-animate">
+        <div class="shape" style="width: 300px; height: 300px; top: -100px; left: -100px;"></div>
+        <div class="shape" style="width: 250px; height: 250px; bottom: 10%; right: -50px; animation-delay: -5s;"></div>
+    </div>
+
     <div class="features-header">
         <h1>الخدمة الرقمية لرفع الملفات</h1>
-        <p>برابط مباشر • بدون إعلانات • بدون تسجيل دخول</p>
+        <p><i class="fas fa-bolt"></i> مباشر • <i class="fas fa-eye-slash"></i> بدون إعلانات • <i class="fas fa-user-shield"></i> آمن</p>
     </div>
 
     <div class="card">
         <form id="upload-form">
             <div class="file-input-wrapper" onclick="document.getElementById('file-input').click()">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: var(--primary);"></i>
-                <div id="file-name">اضغط هنا لاختيار الملف</div>
+                <i class="fas fa-cloud-upload-alt" style="font-size: 50px; color: var(--primary); filter: drop-shadow(0 0 10px var(--primary));"></i>
+                <div id="file-name">اسحب الملف هنا أو اضغط للاختيار</div>
                 <input type="file" id="file-input" name="fileToUpload" style="display: none;" onchange="showName()">
             </div>
             
@@ -140,8 +210,8 @@
 
     <div class="history-container" id="historyBox" style="display: none;">
         <div class="history-title">
-            <span><i class="fas fa-list-ul"></i> ملفاتك الأخيرة</span>
-            <button class="clear-btn" onclick="clearHistory()">مسح</button>
+            <span><i class="fas fa-history"></i> ملفاتك المرفوعه تظهر فقط لك</span>
+            <button class="clear-btn" onclick="clearHistory()">مسح السجل</button>
         </div>
         <div id="historyList"></div>
     </div>
@@ -149,16 +219,17 @@
     <script>
         function showName() {
             const input = document.getElementById('file-input');
-            document.getElementById('file-name').innerText = input.files[0].name;
+            if (input.files.length > 0) {
+                document.getElementById('file-name').innerHTML = `<strong>تم اختيار:</strong><br>${input.files[0].name}`;
+            }
         }
 
         function startUpload() {
             const fileInput = document.getElementById('file-input');
-            if (fileInput.files.length === 0) { alert("من فضلك اختر ملفاً!"); return; }
+            if (fileInput.files.length === 0) { alert("من فضلك اختر ملفاً أولاً!"); return; }
 
             const formData = new FormData();
             formData.append("fileToUpload", fileInput.files[0]);
-            formData.append("submit", "true");
 
             const xhr = new XMLHttpRequest();
             const btn = document.getElementById('upload-btn');
@@ -166,12 +237,10 @@
             const progBar = document.getElementById('progress-bar');
             const percentTxt = document.getElementById('percent');
 
-            // تفعيل شريط التحميل وتعطيل الزر
             btn.disabled = true;
-            btn.innerText = "جاري الرفع...";
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
             progCont.style.display = "block";
 
-            // مراقبة التقدم
             xhr.upload.addEventListener("progress", (e) => {
                 if (e.lengthComputable) {
                     const percent = Math.round((e.loaded / e.total) * 100);
@@ -181,17 +250,20 @@
             });
 
             xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    // استقبال الرد (يجب أن يعيد PHP الرابط فقط)
-                    const response = xhr.responseText.trim();
-                    if (response.startsWith("https")) {
-                        saveToHistory(fileInput.files[0].name, response);
-                        alert("تم الرفع بنجاح!");
-                        location.reload(); 
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        const response = xhr.responseText.trim();
+                        if (response.startsWith("https")) {
+                            saveToHistory(fileInput.files[0].name, response);
+                            alert("✅ تم الرفع بنجاح!");
+                            location.reload(); 
+                        } else {
+                            alert("❌ فشل الرفع: " + response);
+                            resetBtn(btn, progCont);
+                        }
                     } else {
-                        alert("فشل الرفع: " + response);
-                        btn.disabled = false;
-                        btn.innerText = "ابدأ الرفع السحابي";
+                        alert("❌ حدث خطأ في الاتصال بالسيرفر.");
+                        resetBtn(btn, progCont);
                     }
                 }
             };
@@ -200,9 +272,15 @@
             xhr.send(formData);
         }
 
+        function resetBtn(btn, prog) {
+            btn.disabled = false;
+            btn.innerText = "ابدأ رفع الملف";
+            prog.style.display = "none";
+        }
+
         function saveToHistory(name, url) {
             let history = JSON.parse(localStorage.getItem('uploadHistory') || '[]');
-            history.push({ name: name, url: url });
+            history.push({ name: name, url: url, time: new Date().toLocaleTimeString('ar-SA') });
             localStorage.setItem('uploadHistory', JSON.stringify(history));
         }
 
@@ -212,17 +290,29 @@
                 document.getElementById('historyBox').style.display = 'block';
                 document.getElementById('historyList').innerHTML = history.reverse().map(item => `
                     <div class="history-item">
-                        <div style="font-size: 13px; max-width: 60%; overflow: hidden;">${item.name}</div>
+                        <div style="font-size: 13px; max-width: 55%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                            <i class="far fa-file-alt"></i> ${item.name}
+                        </div>
                         <div class="actions">
                             <a href="${item.url}" target="_blank">فتح</a> | 
-                            <span class="copy-btn" onclick="navigator.clipboard.writeText('${item.url}'); alert('تم النسخ!');">نسخ</span>
+                            <span class="copy-btn" onclick="copy('${item.url}')">نسخ</span>
                         </div>
                     </div>
                 `).join('');
             }
         }
 
-        function clearHistory() { localStorage.removeItem('uploadHistory'); location.reload(); }
+        function copy(url) {
+            navigator.clipboard.writeText(url);
+            alert('تم نسخ الرابط بنجاح!');
+        }
+
+        function clearHistory() {
+            if(confirm('هل أنت متأكد من مسح جميع الروابط؟')) {
+                localStorage.removeItem('uploadHistory');
+                location.reload();
+            }
+        }
         window.onload = displayHistory;
     </script>
 </body>
