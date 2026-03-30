@@ -53,7 +53,6 @@
             100% { transform: translate(100px, 100px) scale(1.2); }
         }
 
-        /* --- المحتوى الرئيسي --- */
         .features-header {
             text-align: center;
             margin-bottom: 30px;
@@ -160,22 +159,61 @@
         }
         .history-item:hover { border-color: var(--glass-border); background: rgba(255,255,255,0.05); }
 
+        /* تنسيق المعاينة */
+        .preview-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-box i { font-size: 18px; }
+
         .file-size-badge {
             background: rgba(3, 218, 198, 0.1);
             color: var(--secondary);
             padding: 2px 6px;
             border-radius: 6px;
-            font-size: 10px;
-            margin-right: 5px;
+            font-size: 9px;
+            margin-top: 4px;
+            display: inline-block;
         }
 
-        .actions a, .copy-btn { 
+        .actions { display: flex; gap: 8px; align-items: center; }
+        .actions a, .copy-btn, .qr-btn { 
             color: var(--secondary); 
             text-decoration: none; 
             cursor: pointer; 
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
+        .qr-btn { color: var(--primary); }
+
+        /* نافذة كود QR */
+        #qr-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        .qr-content {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            color: black;
+        }
+        .qr-content h3 { margin-bottom: 10px; font-size: 14px; }
+
         .clear-btn { background: rgba(248, 81, 73, 0.1); border: 1px solid #f85149; color: #f85149; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; }
 
         @media (max-width: 480px) {
@@ -222,14 +260,35 @@
         <div id="historyList"></div>
     </div>
 
+    <div id="qr-modal" onclick="this.style.display='none'">
+        <div class="qr-content" onclick="event.stopPropagation()">
+            <h3>كود QR للتحميل</h3>
+            <div id="qrcode"></div>
+            <p style="font-size: 10px; margin-top: 10px; color: #666;">اضغط في أي مكان للإغلاق</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <script>
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
             const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            const videos = ['mp4', 'mov', 'avi', 'mkv'];
+            const audio = ['mp3', 'wav', 'ogg', 'm4a'];
+            
+            if (images.includes(ext)) return 'IMAGE';
+            if (videos.includes(ext)) return '<i class="fas fa-video" style="color:#ff4444"></i>';
+            if (audio.includes(ext)) return '<i class="fas fa-headphones" style="color:#03dac6"></i>';
+            return '<i class="far fa-file-alt"></i>';
         }
 
         function showName() {
@@ -245,6 +304,7 @@
             if (fileInput.files.length === 0) { alert("من فضلك اختر ملفاً أولاً!"); return; }
 
             const fileSize = formatBytes(fileInput.files[0].size);
+            const fileName = fileInput.files[0].name;
             const formData = new FormData();
             formData.append("fileToUpload", fileInput.files[0]);
 
@@ -267,24 +327,18 @@
             });
 
             xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        const response = xhr.responseText.trim();
-                        if (response.startsWith("https")) {
-                            saveToHistory(fileInput.files[0].name, response, fileSize);
-                            alert("✅ تم الرفع بنجاح!");
-                            location.reload(); 
-                        } else {
-                            alert("❌ فشل الرفع: " + response);
-                            resetBtn(btn, progCont);
-                        }
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = xhr.responseText.trim();
+                    if (response.startsWith("https")) {
+                        saveToHistory(fileName, response, fileSize);
+                        alert("✅ تم الرفع بنجاح!");
+                        location.reload(); 
                     } else {
-                        alert("❌ حدث خطأ في الاتصال بالسيرفر.");
+                        alert("❌ فشل الرفع: " + response);
                         resetBtn(btn, progCont);
                     }
                 }
             };
-
             xhr.open("POST", "upload.php", true);
             xhr.send(formData);
         }
@@ -301,22 +355,41 @@
             localStorage.setItem('uploadHistory', JSON.stringify(history));
         }
 
+        function showQR(url) {
+            const modal = document.getElementById('qr-modal');
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = "";
+            new QRCode(qrDiv, { text: url, width: 150, height: 150 });
+            modal.style.display = 'flex';
+        }
+
         function displayHistory() {
             const history = JSON.parse(localStorage.getItem('uploadHistory') || '[]');
             if (history.length > 0) {
                 document.getElementById('historyBox').style.display = 'block';
-                document.getElementById('historyList').innerHTML = history.reverse().map(item => `
-                    <div class="history-item">
-                        <div style="font-size: 13px; max-width: 55%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                            <i class="far fa-file-alt"></i> ${item.name} 
-                            <span class="file-size-badge">${item.size || 'N/A'}</span>
+                document.getElementById('historyList').innerHTML = history.reverse().map(item => {
+                    const iconOrImg = getFileIcon(item.name);
+                    const previewHtml = iconOrImg === 'IMAGE' 
+                        ? `<div class="preview-box"><img src="${item.url}" alt="preview"></div>`
+                        : `<div class="preview-box">${iconOrImg}</div>`;
+
+                    return `
+                        <div class="history-item">
+                            <div style="display:flex; align-items:center; max-width:60%;">
+                                ${previewHtml}
+                                <div style="overflow:hidden;">
+                                    <div style="font-size: 12px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${item.name}</div>
+                                    <span class="file-size-badge">${item.size} • ${item.time}</span>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <a href="${item.url}" target="_blank">فتح</a>
+                                <span class="qr-btn" onclick="showQR('${item.url}')"><i class="fas fa-qrcode"></i></span>
+                                <span class="copy-btn" onclick="copy('${item.url}')">نسخ</span>
+                            </div>
                         </div>
-                        <div class="actions">
-                            <a href="${item.url}" target="_blank">فتح</a> | 
-                            <span class="copy-btn" onclick="copy('${item.url}')">نسخ</span>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
         }
 
@@ -326,7 +399,7 @@
         }
 
         function clearHistory() {
-            if(confirm('هل أنت متأكد من مسح جميع الروابط؟')) {
+            if(confirm('هل أنت متأكد؟')) {
                 localStorage.removeItem('uploadHistory');
                 location.reload();
             }
