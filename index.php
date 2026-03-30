@@ -118,7 +118,6 @@
         }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* شريط التحميل */
         .progress-container {
             display: none;
             margin-top: 25px;
@@ -136,7 +135,6 @@
         }
         #percent { font-size: 0.85rem; color: var(--secondary); margin-top: 8px; font-weight: bold; }
 
-        /* السجل */
         .history-container {
             width: 100%;
             max-width: 500px;
@@ -162,6 +160,15 @@
         }
         .history-item:hover { border-color: var(--glass-border); background: rgba(255,255,255,0.05); }
 
+        .file-size-badge {
+            background: rgba(3, 218, 198, 0.1);
+            color: var(--secondary);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            margin-right: 5px;
+        }
+
         .actions a, .copy-btn { 
             color: var(--secondary); 
             text-decoration: none; 
@@ -171,7 +178,6 @@
         }
         .clear-btn { background: rgba(248, 81, 73, 0.1); border: 1px solid #f85149; color: #f85149; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; }
 
-        /* تعديلات الجوال */
         @media (max-width: 480px) {
             body { padding: 15px; }
             .card { border-radius: 20px; }
@@ -188,7 +194,7 @@
 
     <div class="features-header">
         <h1>الخدمة الرقمية لرفع الملفات</h1>
-        <p><i class="fas fa-bolt"></i> مباشر • <i class="fas fa-eye-slash"></i> بدون إعلانات • <i class="fas fa-user-shield"></i> آمن</p>
+        <p><i class="fas fa-bolt"></i> رابط مباشر • <i class="fas fa-eye-slash"></i> بدون إعلانات • <i class="fas fa-user-shield"></i> آمن</p>
     </div>
 
     <div class="card">
@@ -217,10 +223,20 @@
     </div>
 
     <script>
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
         function showName() {
             const input = document.getElementById('file-input');
             if (input.files.length > 0) {
-                document.getElementById('file-name').innerHTML = `<strong>تم اختيار:</strong><br>${input.files[0].name}`;
+                const size = formatBytes(input.files[0].size);
+                document.getElementById('file-name').innerHTML = `<strong>تم اختيار:</strong><br>${input.files[0].name}<br><span style="font-size:11px; color:var(--secondary)">الحجم: ${size}</span>`;
             }
         }
 
@@ -228,6 +244,7 @@
             const fileInput = document.getElementById('file-input');
             if (fileInput.files.length === 0) { alert("من فضلك اختر ملفاً أولاً!"); return; }
 
+            const fileSize = formatBytes(fileInput.files[0].size);
             const formData = new FormData();
             formData.append("fileToUpload", fileInput.files[0]);
 
@@ -254,7 +271,7 @@
                     if (xhr.status === 200) {
                         const response = xhr.responseText.trim();
                         if (response.startsWith("https")) {
-                            saveToHistory(fileInput.files[0].name, response);
+                            saveToHistory(fileInput.files[0].name, response, fileSize);
                             alert("✅ تم الرفع بنجاح!");
                             location.reload(); 
                         } else {
@@ -274,13 +291,13 @@
 
         function resetBtn(btn, prog) {
             btn.disabled = false;
-            btn.innerText = "ابدأ رفع الملف";
+            btn.innerText = "ابدأ الرفع السحابي";
             prog.style.display = "none";
         }
 
-        function saveToHistory(name, url) {
+        function saveToHistory(name, url, size) {
             let history = JSON.parse(localStorage.getItem('uploadHistory') || '[]');
-            history.push({ name: name, url: url, time: new Date().toLocaleTimeString('ar-SA') });
+            history.push({ name: name, url: url, size: size, time: new Date().toLocaleTimeString('ar-SA') });
             localStorage.setItem('uploadHistory', JSON.stringify(history));
         }
 
@@ -291,7 +308,8 @@
                 document.getElementById('historyList').innerHTML = history.reverse().map(item => `
                     <div class="history-item">
                         <div style="font-size: 13px; max-width: 55%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                            <i class="far fa-file-alt"></i> ${item.name}
+                            <i class="far fa-file-alt"></i> ${item.name} 
+                            <span class="file-size-badge">${item.size || 'N/A'}</span>
                         </div>
                         <div class="actions">
                             <a href="${item.url}" target="_blank">فتح</a> | 
