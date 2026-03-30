@@ -130,7 +130,6 @@
         }
         #percent { font-size: 0.85rem; color: var(--secondary); margin-top: 8px; font-weight: bold; }
 
-        /* تنسيق عداد الرفع المحدث */
         .upload-counter {
             margin-top: 20px;
             font-size: 13px;
@@ -168,7 +167,6 @@
             border: 1px solid transparent;
             transition: 0.3s;
         }
-        .history-item:hover { border-color: var(--glass-border); background: rgba(255,255,255,0.05); }
 
         .preview-box {
             width: 40px;
@@ -183,7 +181,6 @@
             flex-shrink: 0;
         }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-box i { font-size: 18px; }
 
         .file-size-badge {
             background: rgba(3, 218, 198, 0.1);
@@ -197,7 +194,6 @@
 
         .actions { display: flex; gap: 10px; align-items: center; }
         .actions a, .copy-btn, .qr-btn { color: var(--secondary); text-decoration: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-        .qr-btn { color: var(--primary); }
 
         .social-footer {
             margin-top: 50px;
@@ -211,7 +207,6 @@
             backdrop-filter: blur(10px);
         }
         .social-footer a { color: white; font-size: 1.5rem; transition: 0.3s ease; }
-        .social-footer a:hover { transform: translateY(-5px); }
 
         #qr-modal {
             display: none;
@@ -223,8 +218,6 @@
             align-items: center;
         }
         .qr-content { background: white; padding: 20px; border-radius: 20px; text-align: center; color: black; }
-
-        .clear-btn { background: rgba(248, 81, 73, 0.1); border: 1px solid #f85149; color: #f85149; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -257,14 +250,16 @@
 
         <div class="upload-counter">
             <i class="fas fa-rocket"></i>
-            <span>إجمالي الرفوعات: <span id="total-uploads">0</span></span>
+            <span>إجمالي الرفوعات: <span id="total-uploads">
+                <?php echo file_exists('counter.txt') ? file_get_contents('counter.txt') : '0'; ?>
+            </span></span>
         </div>
     </div>
 
     <div class="history-container" id="historyBox" style="display: none;">
         <div class="history-title">
             <span><i class="fas fa-history"></i> ملفاتك المرفوعة</span>
-            <button class="clear-btn" onclick="clearHistory()">مسح السجل</button>
+            <button class="clear-btn" onclick="clearHistory()" style="background:none; border:1px solid #ff4444; color:#ff4444; border-radius:8px; padding:4px 8px; cursor:pointer; font-size:12px;">مسح السجل</button>
         </div>
         <div id="historyList"></div>
     </div>
@@ -286,20 +281,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
-        // العداد الجديد باستخدام CounterAPI
-        const API_BASE = "https://api.counterapi.dev/v1/d-service-pro/uploads";
-
-        async function updateUploadCounter(increase = false) {
-            try {
-                const url = increase ? `${API_BASE}/up` : API_BASE;
-                const response = await fetch(url);
-                const data = await response.json();
-                document.getElementById('total-uploads').innerText = data.count || 0;
-            } catch (e) {
-                console.error("Counter Error", e);
-            }
-        }
-
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -323,7 +304,7 @@
             const input = document.getElementById('file-input');
             if (input.files.length > 0) {
                 const size = formatBytes(input.files[0].size);
-                document.getElementById('file-name').innerHTML = `<strong>${input.files[0].name}</strong><br><span style="color:var(--secondary)">${size}</span>`;
+                document.getElementById('file-name').innerHTML = `<strong>${input.files[0].name}</strong><br>${size}`;
             }
         }
 
@@ -354,14 +335,13 @@
                 }
             });
 
-            xhr.onreadystatechange = async function() {
+            xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     const response = xhr.responseText.trim();
                     if (response.startsWith("https")) {
-                        await updateUploadCounter(true); // زيادة العداد فوراً
                         saveToHistory(fileName, response, fileSize);
                         alert("✅ تم الرفع بنجاح!");
-                        location.reload(); 
+                        location.reload(); // التحديث هنا ضروري ليظهر رقم العداد الجديد من السيرفر
                     } else {
                         alert("❌ فشل: " + response);
                         btn.disabled = false;
@@ -424,10 +404,7 @@
             if(confirm('مسح السجل؟')) { localStorage.removeItem('uploadHistory'); location.reload(); }
         }
 
-        window.onload = function() {
-            displayHistory();
-            updateUploadCounter(false); // جلب العدد فقط عند فتح الصفحة
-        };
+        window.onload = displayHistory;
     </script>
 </body>
 </html>
