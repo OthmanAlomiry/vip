@@ -110,10 +110,7 @@
             font-size: 1.1rem;
             text-transform: uppercase;
         }
-        button:hover:not(:disabled) { 
-            transform: translateY(-3px); 
-            box-shadow: 0 12px 24px rgba(3, 218, 198, 0.3); 
-        }
+        button:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(3, 218, 198, 0.3); }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .progress-container {
@@ -133,18 +130,18 @@
         }
         #percent { font-size: 0.85rem; color: var(--secondary); margin-top: 8px; font-weight: bold; }
 
-        /* تنسيق عداد الرفع الحقيقي */
+        /* تنسيق عداد الرفع المحدث */
         .upload-counter {
             margin-top: 20px;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--secondary);
-            background: rgba(3, 218, 198, 0.05);
-            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 20px;
             border-radius: 50px;
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            border: 1px solid rgba(3, 218, 198, 0.2);
+            border: 1px solid var(--glass-border);
             font-weight: bold;
         }
 
@@ -198,14 +195,8 @@
             display: inline-block;
         }
 
-        .actions { display: flex; gap: 8px; align-items: center; }
-        .actions a, .copy-btn, .qr-btn { 
-            color: var(--secondary); 
-            text-decoration: none; 
-            cursor: pointer; 
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
+        .actions { display: flex; gap: 10px; align-items: center; }
+        .actions a, .copy-btn, .qr-btn { color: var(--secondary); text-decoration: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .qr-btn { color: var(--primary); }
 
         .social-footer {
@@ -219,15 +210,8 @@
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(10px);
         }
-        .social-footer a {
-            color: white;
-            font-size: 1.5rem;
-            transition: 0.3s ease;
-        }
-        .social-footer a.snapchat:hover { color: #FFFC00; transform: translateY(-5px); }
-        .social-footer a.telegram:hover { color: #0088cc; transform: translateY(-5px); }
-        .social-footer a.whatsapp:hover { color: #25D366; transform: translateY(-5px); }
-        .social-footer a.twitter:hover { color: #fff; transform: translateY(-5px); }
+        .social-footer a { color: white; font-size: 1.5rem; transition: 0.3s ease; }
+        .social-footer a:hover { transform: translateY(-5px); }
 
         #qr-modal {
             display: none;
@@ -238,23 +222,9 @@
             justify-content: center;
             align-items: center;
         }
-        .qr-content {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            text-align: center;
-            color: black;
-        }
-        .qr-content h3 { margin-bottom: 10px; font-size: 14px; }
+        .qr-content { background: white; padding: 20px; border-radius: 20px; text-align: center; color: black; }
 
         .clear-btn { background: rgba(248, 81, 73, 0.1); border: 1px solid #f85149; color: #f85149; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; }
-
-        @media (max-width: 480px) {
-            body { padding: 15px 15px 100px 15px; }
-            .card { border-radius: 20px; }
-            .history-container { margin-top: 25px; }
-            .social-footer { gap: 15px; padding: 10px 20px; }
-        }
     </style>
 </head>
 <body>
@@ -272,7 +242,7 @@
     <div class="card">
         <form id="upload-form">
             <div class="file-input-wrapper" onclick="document.getElementById('file-input').click()">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 50px; color: var(--primary); filter: drop-shadow(0 0 10px var(--primary));"></i>
+                <i class="fas fa-cloud-upload-alt" style="font-size: 50px; color: var(--primary);"></i>
                 <div id="file-name">اسحب الملف هنا أو اضغط للاختيار</div>
                 <input type="file" id="file-input" name="fileToUpload" style="display: none;" onchange="showName()">
             </div>
@@ -286,49 +256,47 @@
         </form>
 
         <div class="upload-counter">
-            <i class="fas fa-file-upload"></i>
-            <span>إجمالي عمليات الرفع: <span id="total-uploads">...</span></span>
+            <i class="fas fa-rocket"></i>
+            <span>إجمالي الرفوعات: <span id="total-uploads">0</span></span>
         </div>
     </div>
 
     <div class="history-container" id="historyBox" style="display: none;">
         <div class="history-title">
-            <span><i class="fas fa-history"></i> ملفاتك المرفوعه تظهر فقط لك</span>
+            <span><i class="fas fa-history"></i> ملفاتك المرفوعة</span>
             <button class="clear-btn" onclick="clearHistory()">مسح السجل</button>
         </div>
         <div id="historyList"></div>
     </div>
 
     <div class="social-footer">
-        <a href="https://snapchat.com/t/HFoklmi4" target="_blank" class="snapchat"><i class="fab fa-snapchat"></i></a>
-        <a href="https://t.me/d_s_pro" target="_blank" class="telegram"><i class="fab fa-telegram"></i></a>
-        <a href="https://wa.me/966505571164" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://x.com/d_service_pro?s=21" target="_blank" class="twitter"><i class="fab fa-twitter"></i></a>
+        <a href="https://snapchat.com/t/HFoklmi4" target="_blank" style="color:#FFFC00"><i class="fab fa-snapchat"></i></a>
+        <a href="https://t.me/d_s_pro" target="_blank" style="color:#0088cc"><i class="fab fa-telegram"></i></a>
+        <a href="https://wa.me/966505571164" target="_blank" style="color:#25D366"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://x.com/d_service_pro?s=21" target="_blank" style="color:#fff"><i class="fab fa-twitter"></i></a>
     </div>
 
     <div id="qr-modal" onclick="this.style.display='none'">
         <div class="qr-content" onclick="event.stopPropagation()">
             <h3>كود QR للتحميل</h3>
             <div id="qrcode"></div>
-            <p style="font-size: 10px; margin-top: 10px; color: #666;">اضغط في أي مكان للإغلاق</p>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
-        // مفتاح العداد الخاص بك (فريد لموقعك)
-        const COUNT_API_URL = "https://api.countapi.xyz/hit/d-service.pro/uploads";
+        // العداد الجديد باستخدام CounterAPI
+        const API_BASE = "https://api.counterapi.dev/v1/d-service-pro/uploads";
 
         async function updateUploadCounter(increase = false) {
             try {
-                // إذا كان increase صحيحاً سنقوم بزيادة العداد، وإلا سنجلب القيمة فقط
-                const endpoint = increase ? COUNT_API_URL : "https://api.countapi.xyz/get/d-service.pro/uploads";
-                const response = await fetch(endpoint);
+                const url = increase ? `${API_BASE}/up` : API_BASE;
+                const response = await fetch(url);
                 const data = await response.json();
-                document.getElementById('total-uploads').innerText = data.value || 0;
+                document.getElementById('total-uploads').innerText = data.count || 0;
             } catch (e) {
-                document.getElementById('total-uploads').innerText = "0";
+                console.error("Counter Error", e);
             }
         }
 
@@ -355,13 +323,13 @@
             const input = document.getElementById('file-input');
             if (input.files.length > 0) {
                 const size = formatBytes(input.files[0].size);
-                document.getElementById('file-name').innerHTML = `<strong>تم اختيار:</strong><br>${input.files[0].name}<br><span style="font-size:11px; color:var(--secondary)">الحجم: ${size}</span>`;
+                document.getElementById('file-name').innerHTML = `<strong>${input.files[0].name}</strong><br><span style="color:var(--secondary)">${size}</span>`;
             }
         }
 
         function startUpload() {
             const fileInput = document.getElementById('file-input');
-            if (fileInput.files.length === 0) { alert("من فضلك اختر ملفاً أولاً!"); return; }
+            if (fileInput.files.length === 0) { alert("اختر ملفاً!"); return; }
 
             const fileSize = formatBytes(fileInput.files[0].size);
             const fileName = fileInput.files[0].name;
@@ -382,7 +350,7 @@
                 if (e.lengthComputable) {
                     const percent = Math.round((e.loaded / e.total) * 100);
                     progBar.style.width = percent + "%";
-                    percentTxt.innerText = percent + "% مكتمل";
+                    percentTxt.innerText = percent + "%";
                 }
             });
 
@@ -390,25 +358,19 @@
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     const response = xhr.responseText.trim();
                     if (response.startsWith("https")) {
-                        // هنا السحر: عند نجاح الرفع نقوم بزيادة العداد العالمي
-                        await updateUploadCounter(true);
+                        await updateUploadCounter(true); // زيادة العداد فوراً
                         saveToHistory(fileName, response, fileSize);
                         alert("✅ تم الرفع بنجاح!");
                         location.reload(); 
                     } else {
-                        alert("❌ فشل الرفع: " + response);
-                        resetBtn(btn, progCont);
+                        alert("❌ فشل: " + response);
+                        btn.disabled = false;
+                        btn.innerText = "ابدأ الرفع السحابي";
                     }
                 }
             };
             xhr.open("POST", "upload.php", true);
             xhr.send(formData);
-        }
-
-        function resetBtn(btn, prog) {
-            btn.disabled = false;
-            btn.innerText = "ابدأ الرفع السحابي";
-            prog.style.display = "none";
         }
 
         function saveToHistory(name, url, size) {
@@ -418,11 +380,10 @@
         }
 
         function showQR(url) {
-            const modal = document.getElementById('qr-modal');
             const qrDiv = document.getElementById('qrcode');
             qrDiv.innerHTML = "";
             new QRCode(qrDiv, { text: url, width: 150, height: 150 });
-            modal.style.display = 'flex';
+            document.getElementById('qr-modal').style.display = 'flex';
         }
 
         function displayHistory() {
@@ -432,7 +393,7 @@
                 document.getElementById('historyList').innerHTML = history.reverse().map(item => {
                     const iconOrImg = getFileIcon(item.name);
                     const previewHtml = iconOrImg === 'IMAGE' 
-                        ? `<div class="preview-box"><img src="${item.url}" alt="preview"></div>`
+                        ? `<div class="preview-box"><img src="${item.url}"></div>`
                         : `<div class="preview-box">${iconOrImg}</div>`;
                     return `
                         <div class="history-item">
@@ -456,20 +417,16 @@
 
         function copy(url) {
             navigator.clipboard.writeText(url);
-            alert('تم نسخ الرابط بنجاح!');
+            alert('تم نسخ الرابط!');
         }
 
         function clearHistory() {
-            if(confirm('هل أنت متأكد؟')) {
-                localStorage.removeItem('uploadHistory');
-                location.reload();
-            }
+            if(confirm('مسح السجل؟')) { localStorage.removeItem('uploadHistory'); location.reload(); }
         }
 
-        // جلب قيمة العداد عند فتح الصفحة
         window.onload = function() {
             displayHistory();
-            updateUploadCounter(false);
+            updateUploadCounter(false); // جلب العدد فقط عند فتح الصفحة
         };
     </script>
 </body>
