@@ -1,48 +1,59 @@
 <?php
-// منع توقف السكربت بسبب طول وقت التنفيذ
-set_time_limit(0);
-// مسح الذاكرة المؤقتة للإخراج ليظهر لك الرقم فوراً دون انتظار نهاية السكربت
+// إعدادات البيئة لضمان استمرار العمل
+set_time_limit(0); 
 ob_implicit_flush(true);
 ob_end_flush();
 
 $baseUrl = "http://ibo.lynxiptv.com/live/276983819492/Dm00SSnT73/";
 $extension = ".m3u8";
 
-echo "<h2>نتائج الفحص (الأرقام الصحيحة فقط):</h2>";
-echo "<div id='results' style='font-family: monospace; line-height: 1.6;'>";
+// تحديد نطاق البحث في الـ 60 ألف
+$start = 60000;
+$end   = 69999;
 
-$foundCount = 0;
+echo "<body style='background:#121212; color:#e0e0e0; font-family:sans-serif;'>";
+echo "<h2>🔎 جاري فحص نطاق الـ 60 ألف (6xxxx)</h2>";
+echo "<p>الأرقام التي تظهر باللون الأخضر هي القنوات الشغالة فعلياً:</p>";
+echo "<hr>";
 
-for ($i = 0; $i <= 9999; $i++) {
+$countFound = 0;
+
+for ($i = $start; $i <= $end; $i++) {
     $url = $baseUrl . $i . $extension;
 
+    // استخدام cURL مع إعدادات متقدمة لتجنب الحظر
     $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_NOBODY, true); // طلب الرأس فقط لتوفير البيانات
+    curl_setopt($ch, CURLOPT_NOBODY, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 1); // مهلة ثانية واحدة لكل محاولة لزيادة السرعة
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 1); // فحص سريع (ثانية واحدة)
     
+    // إيهام السيرفر أننا برنامج VLC أو جهاز Android
+    curl_setopt($ch, CURLOPT_USERAGENT, "VLC/3.0.11 LibVLC/3.0.11");
+
     curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    // إذا كان الرد 200 (موجودة) أو 302 (تحويل) فهي تعمل
-    if ($httpCode == 200 || $httpCode == 302) {
-        $foundCount++;
-        // طباعة الرقم الصحيح فوراً في المتصفح
-        echo "<span style='color: white; background: green; padding: 2px 8px; margin: 2px; border-radius: 4px; display: inline-block;'>";
-        echo "رقم الشغال: <b>$i</b>";
-        echo "</span> ";
+    // إذا استجاب السيرفر بـ 200 فهذا يعني أن الرقم صحيح
+    if ($httpCode == 200) {
+        $countFound++;
+        echo "<div style='background:#2e7d32; color:#fff; padding:10px; margin:5px; border-radius:5px; display:inline-block;'>";
+        echo "✅ تم العثور: <b>$i</b>";
+        echo "</div>";
         
-        // حفظ الرقم في ملف نصي للرجوع إليه لاحقاً
-        file_put_contents('valid_numbers.txt', $i . PHP_EOL, FILE_APPEND);
+        // حفظ الأرقام في ملف نصي فوراً
+        file_put_contents('working_6xxxx.txt', $i . " - " . $url . PHP_EOL, FILE_APPEND);
     }
 
-    // إضافة "نبض" بسيط لتعرف أن السكربت لا يزال يعمل (اختياري)
+    // تحديث الحالة كل 100 رقم لتعرف أين وصل الفحص
     if ($i % 100 == 0) {
-        echo "<br><small style='color:gray;'>تم فحص $i رقم حتى الآن...</small><br>";
+        echo "<div style='color:#777; font-size:12px;'>جاري فحص الرقم: $i ...</div>";
+        // دفع المخرجات للمتصفح فوراً
+        flush();
     }
 }
 
-echo "</div>";
-echo "<h3>اكتمل الفحص! إجمالي القنوات الشغالة: $foundCount</h3>";
+echo "<hr><h3>✅ اكتمل الفحص! تم العثور على $countFound قناة في هذا النطاق.</h3>";
+echo "</body>";
 ?>
