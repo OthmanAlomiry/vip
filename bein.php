@@ -1,10 +1,15 @@
 <?php
-// --- إعدادات البروكسي الذكي ---
+/**
+ * beIN Smart Proxy Player v3.0
+ * Optimized for Speed & CORS Bypass
+ */
+
+// --- إعدادات البروكسي والتحكم في التدفق ---
 if (isset($_GET['stream'])) {
-    // الرابط الأساسي
+    // الرابط الأساسي لملف الـ m3u8
     $url = "http://ibo.lynxiptv.com/live/276983819492/Dm00SSnT73/67397.m3u8";
     
-    // إذا كان الطلب لقطعة فيديو (ملف .ts)
+    // إذا كان الطلب لقطعة فيديو (.ts) نغير الرابط للرابط المرسل
     if (isset($_GET['ts'])) {
         $url = $_GET['ts'];
     }
@@ -13,48 +18,56 @@ if (isset($_GET['stream'])) {
         "http" => [
             "method" => "GET",
             "header" => "User-Agent: VLC/3.0.18 LibVLC/3.0.18\r\n" .
-                        "Accept: */*\r\n"
+                        "Accept: */*\r\n" .
+                        "Connection: keep-alive\r\n",
+            "timeout" => 10
         ]
     ];
-
     $context = stream_context_create($options);
-    $content = @file_get_contents($url, false, $context);
 
-    if ($content === false) {
-        header("HTTP/1.1 404 Not Found");
-        exit;
-    }
-
-    // إذا كان الملف هو قائمة التشغيل (m3u8)، سنقوم بتعديل الروابط داخله
+    // حالة 1: طلب ملف الـ m3u8 (الفهرس)
     if (!isset($_GET['ts'])) {
+        $content = @file_get_contents($url, false, $context);
+        if ($content === false) {
+            header("HTTP/1.1 500 Internal Error");
+            die("خطأ في جلب بيانات البث.");
+        }
+
         header("Content-Type: application/vnd.apple.mpegurl");
         header("Access-Control-Allow-Origin: *");
-        
-        // استخراج المسار الأساسي (Base URL) لتحويل الروابط النسبية إلى كاملة
+        header("Cache-Control: no-cache, must-revalidate");
+
+        // المسار الأساسي لتحويل الروابط النسبية
         $base = "http://ibo.lynxiptv.com/live/276983819492/Dm00SSnT73/";
         
-        // تعديل كل سطر لا يبدأ بـ # (أي روابط الفيديو)
+        // معالجة الروابط داخل الملف لتعمل عبر البروكسي
         $lines = explode("\n", $content);
-        foreach ($lines as &$line) {
+        $output = "";
+        foreach ($lines as $line) {
             $line = trim($line);
             if ($line && $line[0] !== '#') {
-                // تحويل رابط الفيديو ليمر عبر نفس هذا الملف (bein.php)
                 if (strpos($line, 'http') === false) {
                     $full_ts_url = $base . $line;
                 } else {
                     $full_ts_url = $line;
                 }
-                $line = "bein.php?stream=true&ts=" . urlencode($full_ts_url);
+                // توجيه رابط الـ ts ليعود لنفس هذا الملف
+                $output .= "bein.php?stream=true&ts=" . urlencode($full_ts_url) . "\n";
+            } else {
+                $output .= $line . "\n";
             }
         }
-        echo implode("\n", $lines);
-    } else {
-        // إذا كان ملف فيديو .ts، نرسله كما هو
+        echo $output;
+        exit;
+    } 
+    // حالة 2: طلب قطعة فيديو (.ts) - نستخدم النقل المباشر لتسريع الفتح
+    else {
         header("Content-Type: video/mp2t");
         header("Access-Control-Allow-Origin: *");
-        echo $content;
+        // قراءة الملف وإرساله فوراً للمتصفح دون تخزينه في الذاكرة
+        @readfile($url, false, $context);
+        exit;
     }
-    exit;
 }
 ?>
 
@@ -63,11 +76,24 @@ if (isset($_GET['stream'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>beIN Smart Player</title>
-    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <title>beIN Live Stream - Smart Proxy</title>
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    
     <style>
-        body { background: #000; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        #player { width: 100%; height: 100%; max-width: 1000px; max-height: 562px; border: 1px solid #222; }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #000;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 0 50px rgba(0, 230, 118, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -82,10 +108,21 @@ if (isset($_GET['stream'])) {
             width: '100%',
             height: '100%',
             mimeType: "application/x-mpegURL",
-            hlsjsConfig: {
-                enableWorker: true
-            }
+            actualLiveTime: true,
+            preload: 'auto',
+            playback: {
+                playInline: true,
+                hlsjsConfig: {
+                    // إعدادات لتقليل التأخير (Latency)
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    backBufferLength: 60
+                }
+            },
+            watermark: "https://i.imgur.com/your_logo.png", // يمكنك وضع شعارك هنا
+            position: 'top-right',
         });
     </script>
+
 </body>
 </html>
