@@ -1,25 +1,34 @@
 <?php
-// 1. منطق البروكسي: إذا طلب المشغل الرابط مع وجود متغير stream في الرابط
+// --- إعدادات البروكسي ---
 if (isset($_GET['stream'])) {
     $url = "http://ibo.lynxiptv.com/live/276983819492/Dm00SSnT73/67397.m3u8";
 
     $options = [
         "http" => [
             "method" => "GET",
-            "header" => "User-Agent: VLC/3.0.18 LibVLC/3.0.18\r\n" . // إيهام السيرفر أنه مشغل VLC
-                        "Accept: */*\r\n"
+            "header" => "User-Agent: VLC/3.0.18 LibVLC/3.0.18\r\n" .
+                        "Accept: */*\r\n" .
+                        "Connection: close\r\n",
+            "ignore_errors" => true // للسماح بمعرفة نوع الخطأ من السيرفر
         ]
     ];
 
     $context = stream_context_create($options);
-    $content = file_get_contents($url, false, $context);
+    $content = @file_get_contents($url, false, $context);
 
-    if ($content !== false) {
-        header("Content-Type: application/vnd.apple.mpegurl");
-        header("Access-Control-Allow-Origin: *"); // لفك حظر المتصفح CORS
-        echo $content;
+    // إذا فشل جلب المحتوى تماماً
+    if ($content === false) {
+        header("HTTP/1.1 500 Internal Server Error");
+        echo "خطأ: تعذر الاتصال بسيرفر البث.";
+        exit;
     }
-    exit; // إنهاء التنفيذ هنا عند طلب البث فقط
+
+    // إرسال الهيدرز الصحيحة للمتصفح
+    header("Content-Type: application/vnd.apple.mpegurl");
+    header("Access-Control-Allow-Origin: *");
+    header("Cache-Control: no-cache");
+    echo $content;
+    exit;
 }
 ?>
 
@@ -28,48 +37,36 @@ if (isset($_GET['stream'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل beIN - d-service</title>
+    <title>beIN Player - v2</title>
     
-    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
     
     <style>
-        body { 
-            background-color: #0b0b0b; 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .player-container {
-            width: 90%;
-            max-width: 800px;
-            border: 2px solid #333;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        }
-        h2 { margin-bottom: 20px; color: #ffcc00; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        body { background-color: #000; color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        #player { width: 100%; max-width: 800px; }
+        .info { margin-top: 15px; color: #777; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <h2>beIN Sports Live</h2>
+    <h3 style="color: #00e676;">البث المباشر المطور</h3>
 
-    <div class="player-container">
-        <video id="my-video" 
-               class="video-js vjs-default-skin vjs-big-play-centered vjs-16-9" 
-               controls 
-               preload="auto" 
-               data-setup='{}'>
-            <source src="bein.php?stream=true" type="application/x-mpegURL">
-            <p class="vjs-no-js">يرجى تحديث المتصفح لدعم تشغيل الفيديو.</p>
-        </video>
-    </div>
+    <div id="player"></div>
 
-    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <div class="info">المجال الحالي: up.d-service.pro</div>
+
+    <script>
+        var player = new Clappr.Player({
+            source: "bein.php?stream=true",
+            parentId: "#player",
+            mimeType: "application/x-mpegURL",
+            autoPlay: true,
+            height: "100%",
+            width: "100%",
+            preload: 'auto',
+            mediacontrol: {seekbar: "#00e676", buttons: "#00e676"},
+            hlsMinimumLiveBufferLength: 2,
+        });
+    </script>
 </body>
 </html>
