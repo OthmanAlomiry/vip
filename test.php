@@ -6,7 +6,7 @@ ini_set('display_errors', 1);
 date_default_timezone_set('Asia/Riyadh');
 
 // مفتاح الـ API الجديد الخاص بك عثمان
-$API_KEY = 'd6c1b4f231cf6d72aacf0c6cfe61efa5'; 
+$API_KEY = '6b9915e3b84f54b3962e5817b9e26e5f'; 
 
 // جلب التاريخ
 $date_get = isset($_GET['d']) ? $_GET['d'] : date('Y-m-d');
