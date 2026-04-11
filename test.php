@@ -5,20 +5,20 @@ ini_set('display_errors', 1);
 
 date_default_timezone_set('Asia/Riyadh');
 
-// مفتاح الـ API الجديد الخاص بك عثمان
+// مفتاح الـ API الخاص بك عثمان
 $API_KEY = '6b9915e3b84f54b3962e5817b9e26e5f'; 
 
-// جلب التاريخ
+// إعدادات التاريخ
 $date_get = isset($_GET['d']) ? $_GET['d'] : date('Y-m-d');
 $prev_date = date('Y-m-d', strtotime($date_get .' -1 day'));
 $next_date = date('Y-m-d', strtotime($date_get .' +1 day'));
 
-// إعدادات الدوريات (IDs الخاصة بـ API-Sports)
+// إعدادات الدوريات عثمان
 $league_settings = array(
     307 => array('name' => 'الدوري السعودي', 'ch_name' => 'SSC'),
-    2   => array('name' => 'دوري أبطال أوروبا', 'ch_name' => 'beIN Sports'),
-    3   => array('name' => 'الدوري الأوروبي', 'ch_name' => 'beIN Sports'),
-    5   => array('name' => 'دوري أبطال آسيا', 'ch_name' => 'beIN AFC'),
+    42  => array('name' => 'دوري أبطال أوروبا', 'ch_name' => 'beIN Sports'),
+    73  => array('name' => 'الدوري الأوروبي', 'ch_name' => 'beIN Sports'),
+    525 => array('name' => 'نخبة آسيا', 'ch_name' => 'beIN AFC'),
     39  => array('name' => 'الدوري الإنجليزي', 'ch_name' => 'beIN Premium'),
     140 => array('name' => 'الدوري الإسباني', 'ch_name' => 'beIN Sports'),
     135 => array('name' => 'الدوري الإيطالي', 'ch_name' => 'AD Sports'),
@@ -26,11 +26,20 @@ $league_settings = array(
     61  => array('name' => 'الدوري الفرنسي', 'ch_name' => 'beIN Sports')
 );
 
-// دالة جلب البيانات عثمان
-function getFixtures($date, $key) {
+// --- دالة جلب البيانات بنظام الكاش الموزون (90 طلب يومياً) عثمان ---
+function getFixturesWithCache($date, $key) {
+    $cache_file = "cache_" . $date . ".json";
+    
+    // تم ضبط الوقت ليكون 1000 ثانية لضمان بقاء الطلبات تحت الـ 90 طلب في اليوم
+    $expire_time = 1000; 
+
+    if (file_exists($cache_file) && (time() - filemtime($cache_file) < $expire_time)) {
+        return json_decode(file_get_contents($cache_file), true);
+    }
+
     $curl = curl_init();
     curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://v3.football.api-sports.io/fixtures?date=$date",
+        CURLOPT_URL => "https://v3.football.api-sports.io/fixtures?date=$date&timezone=Asia/Riyadh",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER => array("x-apisports-key: $key"),
         CURLOPT_TIMEOUT => 15,
@@ -43,10 +52,16 @@ function getFixtures($date, $key) {
     if ($err) return array();
     
     $data = json_decode($response, true);
-    return (isset($data['response'])) ? $data['response'] : array();
+    $results = (isset($data['response'])) ? $data['response'] : array();
+
+    if (!empty($results)) {
+        file_put_contents($cache_file, json_encode($results));
+    }
+    
+    return $results;
 }
 
-$fixtures = getFixtures($date_get, $API_KEY);
+$fixtures = getFixturesWithCache($date_get, $API_KEY);
 
 $ordered_matches = array();
 if (!empty($fixtures)) {
