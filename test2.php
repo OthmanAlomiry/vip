@@ -3,7 +3,7 @@ session_start();
 error_reporting(0);
 
 // --- إعدادات الـ API والملفات عثمان ---
-$FOOTBALL_API_KEY = '895397d292e24b08cf4b107b68f52524'; // مفتاحك النشط من الصورة
+$FOOTBALL_API_KEY = '6b9915e3b84f54b3962e5817b9e26e5f'; // مفتاحك النشط من الصورة
 $cache_file = 'matches_cache.json';
 $cache_time = 3600; // تحديث كل ساعة للحفاظ على الـ 100 طلب
 
